@@ -1,5 +1,6 @@
 import express from "express";
 import type { Express } from "express";
+import { errorHandler } from "./middlewares/error-handler.js";
 
 export function createExpressApplication(): Express {
   const app = express();
@@ -13,6 +14,9 @@ export function createExpressApplication(): Express {
       message: "Server is running",
     });
   });
+
+  // Error Handler
+  app.use(errorHandler);
 
   return app;
 }
