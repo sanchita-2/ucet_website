@@ -10,8 +10,14 @@ export function createExpressApplication(): Express {
   // Routes
   app.get("/", (req, res) => {
     return res.status(200).json({
+      success: true,
+      message: "Backend server is running",
+    });
+  });
+
+  app.get("/health", (req, res) => {
+    return res.status(200).json({
       status: "healthy",
-      message: "Server is running",
     });
   });
 
