@@ -1,0 +1,20 @@
+services:
+  postgresdb:
+    image: postgres:17
+    container_name: college_erp_pg
+
+    restart: unless-stopped
+
+    ports:
+      - "5433:5432"
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: college_erp_db
+
+    volumes:
+      - college_erp_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  college_erp_postgres_data:
