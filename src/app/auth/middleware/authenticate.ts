@@ -7,7 +7,7 @@ import type {
 import {
   verifyAccessToken,
   type AccessTokenPayload,
-} from "../utils/token.util.js";
+} from "../utils/token.util.ts";
 
 declare global {
   namespace Express {
