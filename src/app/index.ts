@@ -1,8 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import type { Express } from "express";
 import { errorHandler } from "./middlewares/error-handler.js";
 import authRoutes from "./auth/routes/auth.routes.js";
 import cookieParser from "cookie-parser";
+
+
+
+
+
 
 export function createExpressApplication(): Express {
   const app = express();
