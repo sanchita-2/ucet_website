@@ -4,17 +4,21 @@ dotenv.config();
 import express from "express";
 import type { Express } from "express";
 import { errorHandler } from "./middlewares/error-handler.js";
+import authRoutes from "./auth/routes/auth.routes.js";
+import cookieParser from "cookie-parser";
 
-import testRoutes from "./routes/auth.routes.js";
+
 
 
 
 
 export function createExpressApplication(): Express {
   const app = express();
+  app.use(express.json());
+  app.use(cookieParser());
+  // Middlewares
 
-  // Middlewares]
-app.use("/get", testRoutes);
+
   // Routes
   app.get("/", (req, res) => {
     return res.status(200).json({
@@ -31,6 +35,9 @@ app.use("/get", testRoutes);
 
   // Error Handler
   app.use(errorHandler);
+
+
+  app.use("/api/auth", authRoutes);
 
   return app;
 }
