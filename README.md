@@ -50,6 +50,8 @@ Example:
 PORT=8080
 
 DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database_name>
+
+JWT_SECRET=<use strong and secure jwt secret>
 ```
 
 ---
