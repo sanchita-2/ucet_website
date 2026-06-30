@@ -1,6 +1,9 @@
+import "dotenv/config";
+
+console.log("JWT_SECRET =", process.env.JWT_SECRET);
+console.log("JWT_REFRESH_SECRET =", process.env.JWT_REFRESH_SECRET);
 import http from "node:http";
 import { createExpressApplication } from "./app/index.js";
-import "dotenv/config";
 
 async function main() {
   try {

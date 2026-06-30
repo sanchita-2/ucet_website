@@ -8,12 +8,10 @@ import { errorHandler } from "./middlewares/error-handler.js";
 import testRoutes from "./routes/auth.routes.js";
 
 
-
-
 export function createExpressApplication(): Express {
   const app = express();
 
-  // Middlewares]
+
 app.use("/get", testRoutes);
   // Routes
   app.get("/", (req, res) => {

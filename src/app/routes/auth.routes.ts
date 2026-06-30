@@ -6,18 +6,6 @@ import { Router, type Router as ExpressRouter } from "express";
 
 const router: ExpressRouter = Router();
 
-import { generateAccessToken } from "../auth/utils/token.util.js";
-
-router.get("/token", (req, res) => {
-  const token = generateAccessToken({
-    userId: "123",
-    email: "student@test.com",
-    role: "student",
-  });
-
-  res.json({ token });
-});
-
 
 
 router.get(

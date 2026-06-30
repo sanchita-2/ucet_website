@@ -1,3 +1,4 @@
+
 import type {
   Request,
   Response,
@@ -22,6 +23,7 @@ export const authenticate = (
   res: Response,
   next: NextFunction,
 ): void => {
+  console.log("Headers:", req.headers);
   try {
     const authHeader =
       req.headers.authorization;
@@ -50,8 +52,9 @@ export const authenticate = (
       return;
     }
 
-    const token =
-      authHeader.split(" ")[1];
+    const token = authHeader.split(" ")[1];
+
+     console.log("Received Token:", token);
 
     if (!token) {
       res.status(401).json({
@@ -63,12 +66,14 @@ export const authenticate = (
       return;
     }
 
-    const decoded =
-      verifyAccessToken(token);
+
+    const decoded = verifyAccessToken(token);
 
     req.user = decoded;
 
-    next();
+     console.log("Decoded User:", decoded);
+
+next();
   } catch {
     res.status(401).json({
       success: false,
