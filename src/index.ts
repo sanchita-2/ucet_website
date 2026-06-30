@@ -4,11 +4,17 @@ console.log("JWT_SECRET =", process.env.JWT_SECRET);
 console.log("JWT_REFRESH_SECRET =", process.env.JWT_REFRESH_SECRET);
 import http from "node:http";
 import { createExpressApplication } from "./app/index.js";
+<<<<<<< HEAD
 
+=======
+import { env } from "./config/env.js";
+import {testDbConnection} from "./db/index.js"
+>>>>>>> 9901ab119b0188216b68d86c7b493d7d75b5814b
 async function main() {
   try {
+     await testDbConnection();
     const server = http.createServer(createExpressApplication());
-    const PORT = Number(process.env.PORT) || 3000;
+    const PORT = Number(env.PORT) || 3000;
 
     server.listen(PORT, () => {
       console.log(`HTTP server is running on PORT ${PORT}`);

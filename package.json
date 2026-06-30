@@ -23,19 +23,28 @@
   },
   "type": "module",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.9.1",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsc-watch": "^7.2.0",
     "tsx": "^4.22.3"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+<<<<<<< HEAD
+=======
+    "nodemailer": "^9.0.1",
+>>>>>>> 9901ab119b0188216b68d86c7b493d7d75b5814b
     "pg": "^8.21.0",
     "zod": "^4.4.3"
   }

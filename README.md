@@ -47,7 +47,7 @@ Create a `.env` file in the project root using `.env.example`.
 Example:
 
 ```env
-PORT=5000
+PORT=8080
 
 DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database_name>
 ```
@@ -130,7 +130,7 @@ pnpm dev
 The server should be available at:
 
 ```text
-http://localhost:5000
+http://localhost:8080
 ```
 
 ---
@@ -194,24 +194,103 @@ Runs the compiled production build.
 src/
 ├── app/
 │   ├── auth/
-│   │   ├── middleware/
-│   │   │   └── auth-middleware.ts
-│   │   ├── controller.ts
-│   │   ├── models.ts
-│   │   ├── routes.ts
-│   │   └── utils/
-│   │       └── token.ts
-│   │
+│   ├── students/
+│   ├── teachers/
+│   ├── non-teaching-staff/
+│   ├── branch/
+│   ├── semester/
+│   ├── subject/
+│   ├── timetable/
+│   ├── enrollment/
+│   ├── marks/
+│   ├── placement-cell/
+│   ├── placement/
 │   ├── middlewares/
-│   │   └── error-handler.ts
-│   │
 │   └── index.ts
 │
 ├── db/
+│   ├── schema.ts
+│   ├── relations.ts
 │   ├── index.ts
-│   └── schema.ts
+│   └── migrations/
+│
+├── shared/
+│   ├── constants/
+│   ├── types/
+│   ├── utils/
+│   └── validators/
+│
+├── config/
 │
 └── index.ts
+```
+
+---
+
+## Naming Convention
+
+### Folders
+
+Use lowercase or kebab-case.
+
+Examples:
+
+```text
+auth/
+students/
+non-teaching-staff/
+placement-cell/
+```
+
+### Files
+
+Use the feature + suffix style.
+
+Examples:
+
+```text
+auth.controller.ts
+auth.service.ts
+auth.routes.ts
+auth.validator.ts
+token.util.ts
+hash.util.ts
+```
+
+### Database Columns
+
+Use snake_case.
+
+Examples:
+
+```text
+first_name
+password_hash
+created_at
+updated_at
+```
+
+### Types, Interfaces, Classes
+
+Use PascalCase.
+
+Examples:
+
+```ts
+interface LoginRequest {}
+type UserRole = ...
+class AuthService {}
+```
+
+### Functions and Variables
+
+Use camelCase.
+
+Examples:
+
+```ts
+const loginUser = async () => {}
+const passwordHash = "..."
 ```
 
 ---
