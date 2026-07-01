@@ -452,3 +452,19 @@ export const placements = pgTable(
   },
   (table) => [check("package_check", sql`${table.package} >= 0`)],
 );
+export const notifications = pgTable("notifications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  title: varchar("title", { length: 255 }).notNull(),
+
+  content: varchar("content", { length: 5000 }).notNull(),
+
+  category: varchar("category", { length: 50 }).notNull(),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
