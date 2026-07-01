@@ -6,7 +6,7 @@ import type { Express } from "express";
 import { errorHandler } from "./middlewares/error-handler.js";
 import authRoutes from "./auth/routes/auth.routes.js";
 import cookieParser from "cookie-parser";
-
+import notificationRouter from "./routes/notification.route.js";
 
 
 
@@ -29,6 +29,10 @@ export function createExpressApplication(): Express {
     });
   });
 
+  app.use("/api/notifications", notificationRouter);
+ 
+ 
+ 
   // Error Handler
   app.use(errorHandler);
 
