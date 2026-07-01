@@ -1,39 +1,53 @@
 import { Router } from "express";
 
 import {
-  createNotificationController,
-  getAllNotificationsController,
-  updateNotificationController,
-  deleteNotificationController,
+  createNotification,
+  getAllNotifications,
+  getNotificationById,
+  updateNotification,
+  deleteNotification,
 } from "../notifications/notification.controller.js";
 
 import { authenticate } from "../auth/middleware/authenticate.js";
 
-const notificationRouter: Router = Router();
+import { authorizeRole } from "../auth/middleware/authorize-role.js";
+
+const notificationRouter = Router();
 
 
 notificationRouter.get(
   "/",
   authenticate,
-  getAllNotificationsController
+  getAllNotifications,
 );
+
+notificationRouter.get(
+  "/:id",
+  authenticate,
+  getNotificationById,
+);
+
+
 
 notificationRouter.post(
   "/",
   authenticate,
-  createNotificationController
+  authorizeRole("admin"),
+  createNotification,
 );
 
 notificationRouter.put(
   "/:id",
   authenticate,
-  updateNotificationController
+  authorizeRole("admin"),
+  updateNotification,
 );
 
 notificationRouter.delete(
   "/:id",
   authenticate,
-  deleteNotificationController
+  authorizeRole("admin"),
+  deleteNotification,
 );
 
 export default notificationRouter;
