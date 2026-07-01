@@ -4,38 +4,35 @@ import type {
   NextFunction,
 } from "express";
 
-import {
-  createNotification,
-  getAllNotifications,
-  updateNotification,
-  deleteNotification,
-} from "./notification.service.js";
-
-import type {
-  CreateNotificationInput,
-  UpdateNotificationInput,
-} from "./notification.validator.js";
+import * as notificationService from "./notification.service.js";
 
 import {
   createNotificationSchema,
   updateNotificationSchema,
 } from "./notification.validator.js";
 
-/* Create Notification
- */
-export const createNotificationController = async (
-  req: Request<{}, {}, CreateNotificationInput>,
+export const createNotification = async (
+  req: Request,
   res: Response,
-  next: NextFunction
-): Promise<void> => {
+  next: NextFunction,
+) => {
   try {
-    const validatedData =
-      createNotificationSchema.parse(req.body);
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required.",
+      });
+    }
+
+    const body = createNotificationSchema.parse(req.body);
 
     const notification =
-      await createNotification(validatedData);
+      await notificationService.createNotification(
+        body,
+        req.user.userId,
+      );
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Notification created successfully.",
       data: notification,
@@ -45,18 +42,18 @@ export const createNotificationController = async (
   }
 };
 
-
-export const getAllNotificationsController = async (
+export const getAllNotifications = async (
   req: Request,
   res: Response,
-  next: NextFunction
-): Promise<void> => {
+  next: NextFunction,
+) => {
   try {
     const notifications =
-      await getAllNotifications();
+      await notificationService.getAllNotifications();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
+      count: notifications.length,
       data: notifications,
     });
   } catch (error) {
@@ -64,27 +61,58 @@ export const getAllNotificationsController = async (
   }
 };
 
-
-export const updateNotificationController = async (
-  req: Request<
-    { id: string },
-    {},
-    UpdateNotificationInput
-  >,
+export const getNotificationById = async (
+  req: Request,
   res: Response,
-  next: NextFunction
-): Promise<void> => {
+  next: NextFunction,
+) => {
   try {
-    const validatedData =
+    const id = req.params.id as string;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Notification ID is required.",
+      });
+    }
+
+    const notification =
+      await notificationService.getNotificationById(id);
+
+    return res.status(200).json({
+      success: true,
+      data: notification,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateNotification = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id as string;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Notification ID is required.",
+      });
+    }
+
+    const body =
       updateNotificationSchema.parse(req.body);
 
     const notification =
-      await updateNotification(
-        Number(req.params.id),
-        validatedData
+      await notificationService.updateNotification(
+        id,
+        body,
       );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Notification updated successfully.",
       data: notification,
@@ -94,15 +122,24 @@ export const updateNotificationController = async (
   }
 };
 
-export const deleteNotificationController = async (
-  req: Request<{ id: string }>,
+export const deleteNotification = async (
+  req: Request,
   res: Response,
-  next: NextFunction
-): Promise<void> => {
+  next: NextFunction,
+) => {
   try {
-    await deleteNotification(Number(req.params.id));
+    const id = req.params.id as string;
 
-    res.status(200).json({
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Notification ID is required.",
+      });
+    }
+
+    await notificationService.deleteNotification(id);
+
+    return res.status(200).json({
       success: true,
       message: "Notification deleted successfully.",
     });
