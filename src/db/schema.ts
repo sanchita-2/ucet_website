@@ -107,6 +107,27 @@ export const users = pgTable(
   ],
 );
 
+export const notificationCategoryEnum = pgEnum(
+  "notification_category",
+  [
+    "general",
+    "academic",
+    "exam",
+    "placement",
+    "event",
+    "holiday",
+  ],
+);
+
+export const notificationPriorityEnum = pgEnum(
+  "notification_priority",
+  [
+    "normal",
+    "high",
+    "urgent",
+  ],
+);
+
 export const refreshTokens = pgTable(
   "refresh_tokens",
   {
@@ -451,4 +472,58 @@ export const placements = pgTable(
       .notNull(),
   },
   (table) => [check("package_check", sql`${table.package} >= 0`)],
+);
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    title: varchar("title", { length: 255 }).notNull(),
+
+    content: varchar("content", {
+      length: 5000,
+    }).notNull(),
+
+    category: notificationCategoryEnum("category")
+      .default("general")
+      .notNull(),
+
+    priority: notificationPriorityEnum("priority")
+      .default("normal")
+      .notNull(),
+
+    isPinned: boolean("is_pinned")
+      .default(false)
+      .notNull(),
+
+    expiresAt: timestamp("expires_at"),
+
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id, {
+        onDelete: "restrict",
+      }),
+
+    createdAt: timestamp("created_at")
+      .defaultNow()
+      .notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_notifications_created_at").on(
+      table.createdAt,
+    ),
+
+    index("idx_notifications_category").on(
+      table.category,
+    ),
+
+    index("idx_notifications_pinned").on(
+      table.isPinned,
+    ),
+  ],
 );
