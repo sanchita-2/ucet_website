@@ -8,7 +8,7 @@ import {
   verifyEmailSchema,
   forgotPasswordSchema,
   verifyResetOtpSchema,
-  resetPasswordSchema
+  resetPasswordSchema,
 } from "../validators/auth.validator.js";
 
 import {
@@ -17,28 +17,22 @@ import {
   forgotPasswordController,
   verifyResetOtpController,
   resetPasswordController,
-  logoutController
+  logoutController,
 } from "../controllers/auth.controller.js";
 
-import { verifyEmailController }
-from "../controllers/VerifyEmail.controller.js";
+import { verifyEmailController } from "../controllers/VerifyEmail.controller.js";
 
-import { resendOtpController }
-from "../controllers/resendotp.controller.js";
+import { resendOtpController } from "../controllers/resendotp.controller.js";
 
-const router = Router();
+const router: Router = Router();
 
 router.post(
   "/register",
   validate(registerStudentSchema),
-  registerStudentController
+  registerStudentController,
 );
 
-router.post(
-  "/login",
-  validate(loginSchema),
-  loginController
-);
+router.post("/login", validate(loginSchema), loginController);
 
 // router.post(
 //   "/verify-email",
@@ -48,35 +42,29 @@ router.post(
 router.post(
   "/verify-email",
   validate(verifyEmailSchema),
-  verifyEmailController
+  verifyEmailController,
 );
 
-router.post(
-  "/resend-otp",
-  resendOtpController
-);
+router.post("/resend-otp", resendOtpController);
 
-router.post(
-  "/logout",
-  logoutController
-);
+router.post("/logout", logoutController);
 
 router.post(
   "/forgot-password",
   validate(forgotPasswordSchema),
-  forgotPasswordController
+  forgotPasswordController,
 );
 
 router.post(
   "/verify-reset-otp",
   validate(verifyResetOtpSchema),
-  verifyResetOtpController
+  verifyResetOtpController,
 );
 
 router.post(
   "/reset-password",
   validate(resetPasswordSchema),
-  resetPasswordController
+  resetPasswordController,
 );
 
 export default router;
