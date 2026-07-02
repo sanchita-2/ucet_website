@@ -1,14 +1,28 @@
-import "dotenv/config";
+import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
-export const db = drizzle(process.env.DATABASE_URL!);
+import { env } from "../config/env.js";
 
-export async function testDbConnection() {
+const pool = new Pool({
+  connectionString: env.DATABASE_URL,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+});
+
+export const db = drizzle(pool);
+
+export async function verifyDatabaseConnection() {
   try {
     await db.execute(sql`SELECT 1`);
-    console.log("✅ Database Connected");
+    console.info("✅ Database Connected");
   } catch (error) {
-    console.error("❌ Database Connection Failed");
-    console.error(error);
+    throw new Error("Database connection failed", {
+      cause: error,
+    });
   }
+}
+
+export async function closeDbConnection() {
+  await pool.end();
 }
