@@ -7,7 +7,7 @@ import { errorHandler } from "./middlewares/error-handler.js";
 import authRoutes from "./auth/routes/auth.routes.js";
 import cookieParser from "cookie-parser";
 import notificationRouter from "./routes/notification.route.js";
-
+import branchRouter from "./branch/branch.routes.js";
 
 
 export function createExpressApplication(): Express {
@@ -31,13 +31,10 @@ export function createExpressApplication(): Express {
 
   app.use("/api/notifications", notificationRouter);
  
- 
- 
+ app.use("/api/branches", branchRouter);
+  app.use("/api/auth", authRoutes);
   // Error Handler
   app.use(errorHandler);
-
-
-  app.use("/api/auth", authRoutes);
 
   return app;
 }

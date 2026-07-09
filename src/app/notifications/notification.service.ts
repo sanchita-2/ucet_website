@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, isNull, or } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 import { notifications } from "../../db/schema.js";
@@ -8,9 +8,11 @@ import type {
   UpdateNotificationInput,
 } from "./notification.validator.js";
 
+/**
+ * Create Notification
+ */
 export const createNotification = async (
   data: CreateNotificationInput,
-  createdBy: string,
 ) => {
   const [notification] = await db
     .insert(notifications)
@@ -18,34 +20,25 @@ export const createNotification = async (
       title: data.title,
       content: data.content,
       category: data.category,
-      priority: data.priority ?? "normal",
-      isPinned: data.isPinned ?? false,
-      expiresAt: data.expiresAt
-        ? new Date(data.expiresAt)
-        : null,
-      createdBy,
     })
     .returning();
 
   return notification;
 };
 
+/**
+ * Get All Notifications
+ */
 export const getAllNotifications = async () => {
-  return db
+  return await db
     .select()
     .from(notifications)
-    .where(
-      or(
-        isNull(notifications.expiresAt),
-        gt(notifications.expiresAt, new Date()),
-      ),
-    )
-    .orderBy(
-      desc(notifications.isPinned),
-      desc(notifications.createdAt),
-    );
+    .orderBy(desc(notifications.createdAt));
 };
 
+/**
+ * Get Notification By Id
+ */
 export const getNotificationById = async (
   id: string,
 ) => {
@@ -61,6 +54,9 @@ export const getNotificationById = async (
   return notification;
 };
 
+/**
+ * Update Notification
+ */
 export const updateNotification = async (
   id: string,
   data: UpdateNotificationInput,
@@ -80,20 +76,6 @@ export const updateNotification = async (
         category: data.category,
       }),
 
-      ...(data.priority && {
-        priority: data.priority,
-      }),
-
-      ...(typeof data.isPinned === "boolean" && {
-        isPinned: data.isPinned,
-      }),
-
-      ...(data.expiresAt !== undefined && {
-        expiresAt: data.expiresAt
-          ? new Date(data.expiresAt)
-          : null,
-      }),
-
       updatedAt: new Date(),
     })
     .where(eq(notifications.id, id))
@@ -106,6 +88,9 @@ export const updateNotification = async (
   return notification;
 };
 
+/**
+ * Delete Notification
+ */
 export const deleteNotification = async (
   id: string,
 ) => {

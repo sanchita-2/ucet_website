@@ -26,7 +26,9 @@ from "../controllers/VerifyEmail.controller.js";
 import { resendOtpController }
 from "../controllers/resendotp.controller.js";
 
-const router = Router();
+
+
+const router: Router = Router();
 
 router.post(
   "/register",

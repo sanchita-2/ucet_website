@@ -29,7 +29,7 @@ export const createNotification = async (
     const notification =
       await notificationService.createNotification(
         body,
-        req.user.userId,
+      
       );
 
     return res.status(201).json({

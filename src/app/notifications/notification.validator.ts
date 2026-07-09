@@ -16,28 +16,9 @@ export const createNotificationSchema = z.object({
   category: z.enum([
     "general",
     "academic",
-    "exam",
     "placement",
     "event",
-    "holiday",
   ]),
-
-  priority: z
-    .enum([
-      "normal",
-      "high",
-      "urgent",
-    ])
-    .optional(),
-
-  isPinned: z
-    .boolean()
-    .optional(),
-
-  expiresAt: z
-    .string()
-    .datetime()
-    .optional(),
 });
 
 export const updateNotificationSchema =
