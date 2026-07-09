@@ -107,6 +107,27 @@ export const users = pgTable(
   ],
 );
 
+export const notificationCategoryEnum = pgEnum(
+  "notification_category",
+  [
+    "general",
+    "academic",
+    "exam",
+    "placement",
+    "event",
+    "holiday",
+  ],
+);
+
+export const notificationPriorityEnum = pgEnum(
+  "notification_priority",
+  [
+    "normal",
+    "high",
+    "urgent",
+  ],
+);
+
 export const refreshTokens = pgTable(
   "refresh_tokens",
   {
