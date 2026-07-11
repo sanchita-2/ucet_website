@@ -16,9 +16,9 @@ export const verifyEmailController = async (
       });
     }
 
-    console.log("Verify Email Request:");
-console.log("Email:", email);
-console.log("OTP:", otp);
+    // console.log("Verify Email Request:");
+// console.log("Email:", email);
+// console.log("OTP:", otp);
 
     const result = await verifyEmailOtp(email, otp);
 

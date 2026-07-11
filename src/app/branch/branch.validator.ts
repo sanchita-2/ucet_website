@@ -1,8 +1,13 @@
 import { z } from "zod";
 
-/* Create Branch
- */
 export const createBranchSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .min(2, "Branch code must be at least 2 characters.")
+    .max(20, "Branch code cannot exceed 20 characters."),
+
   branchName: z
     .string()
     .trim()
@@ -10,31 +15,18 @@ export const createBranchSchema = z.object({
     .max(255, "Branch name cannot exceed 255 characters."),
 });
 
-export type CreateBranchInput = z.infer<
-  typeof createBranchSchema
->;
+export type CreateBranchInput = z.infer<typeof createBranchSchema>;
 
-/* Update Branch
- */
 export const updateBranchSchema = z.object({
-  branchName: z
-    .string()
-    .trim()
-    .min(2)
-    .max(255)
-    .optional(),
+  code: z.string().trim().toUpperCase().min(2).max(20).optional(),
+
+  branchName: z.string().trim().min(2).max(255).optional(),
 });
 
-export type UpdateBranchInput = z.infer<
-  typeof updateBranchSchema
->;
+export type UpdateBranchInput = z.infer<typeof updateBranchSchema>;
 
-/* Branch ID
- */
 export const branchIdSchema = z.object({
   id: z.uuid("Invalid branch id."),
 });
 
-export type BranchIdInput = z.infer<
-  typeof branchIdSchema
->;
+export type BranchIdInput = z.infer<typeof branchIdSchema>;

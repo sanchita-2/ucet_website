@@ -1,5 +1,5 @@
 {
-  "id": "6ee2d5a3-efd9-4066-a079-e106ec8204d7",
+  "id": "013ef08d-ff52-40fa-801c-4ba9949f9e57",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -114,6 +114,12 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "branch_code": {
+          "name": "branch_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "branch_name": {
           "name": "branch_name",
           "type": "varchar(255)",
@@ -139,6 +145,13 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "branches_branch_code_unique": {
+          "name": "branches_branch_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "branch_code"
+          ]
+        },
         "branches_branch_name_unique": {
           "name": "branches_branch_name_unique",
           "nullsNotDistinct": false,
@@ -536,6 +549,58 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.notifications": {
+      "name": "notifications",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "varchar(5000)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -1840,6 +1905,27 @@
         "female",
         "other",
         "prefer_not_to_say"
+      ]
+    },
+    "public.notification_category": {
+      "name": "notification_category",
+      "schema": "public",
+      "values": [
+        "general",
+        "academic",
+        "exam",
+        "placement",
+        "event",
+        "holiday"
+      ]
+    },
+    "public.notification_priority": {
+      "name": "notification_priority",
+      "schema": "public",
+      "values": [
+        "normal",
+        "high",
+        "urgent"
       ]
     },
     "public.placement_status": {

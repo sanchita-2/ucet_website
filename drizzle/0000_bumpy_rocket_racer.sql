@@ -2,6 +2,8 @@ CREATE TYPE "public"."admission_type" AS ENUM('regular', 'lateral_entry');--> st
 CREATE TYPE "public"."day_of_week" AS ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');--> statement-breakpoint
 CREATE TYPE "public"."enrollment_status" AS ENUM('active', 'completed', 'dropped');--> statement-breakpoint
 CREATE TYPE "public"."gender_type" AS ENUM('male', 'female', 'other', 'prefer_not_to_say');--> statement-breakpoint
+CREATE TYPE "public"."notification_category" AS ENUM('general', 'academic', 'exam', 'placement', 'event', 'holiday');--> statement-breakpoint
+CREATE TYPE "public"."notification_priority" AS ENUM('normal', 'high', 'urgent');--> statement-breakpoint
 CREATE TYPE "public"."placement_status" AS ENUM('pending', 'interviewing', 'offered', 'placed', 'rejected', 'unplaced');--> statement-breakpoint
 CREATE TYPE "public"."placement_type" AS ENUM('on_campus', 'off_campus', 'internship', 'ppo');--> statement-breakpoint
 CREATE TYPE "public"."user_role" AS ENUM('admin', 'teacher', 'student', 'non_teaching_staff');--> statement-breakpoint
@@ -21,9 +23,11 @@ CREATE TABLE "academic_details" (
 --> statement-breakpoint
 CREATE TABLE "branches" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"branch_code" varchar(20) NOT NULL,
 	"branch_name" varchar(255) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "branches_branch_code_unique" UNIQUE("branch_code"),
 	CONSTRAINT "branches_branch_name_unique" UNIQUE("branch_name")
 );
 --> statement-breakpoint
@@ -65,6 +69,15 @@ CREATE TABLE "non_teaching_staff" (
 	"staff_role" "staff_role" NOT NULL,
 	"department" varchar(100) NOT NULL,
 	"branch_id" uuid NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "notifications" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"content" varchar(5000) NOT NULL,
+	"category" varchar(50) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

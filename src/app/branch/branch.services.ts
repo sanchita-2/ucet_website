@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 import { branches } from "../../db/schema.js";
@@ -8,27 +8,29 @@ import type {
   UpdateBranchInput,
 } from "./branch.validator.js";
 
-
-export const createBranch = async (
-  data: CreateBranchInput,
-) => {
-  // Check duplicate branch
+export const createBranch = async (data: CreateBranchInput) => {
   const [existingBranch] = await db
     .select()
     .from(branches)
     .where(
-      eq(branches.branchName, data.branchName),
+      or(
+        eq(branches.code, data.code),
+        eq(branches.branchName, data.branchName),
+      ),
     );
 
   if (existingBranch) {
-    throw new Error(
-      "Branch already exists.",
-    );
+    if (existingBranch.code === data.code) {
+      throw new Error("Branch code already exists.");
+    }
+
+    throw new Error("Branch name already exists.");
   }
 
   const [newBranch] = await db
     .insert(branches)
     .values({
+      code: data.code,
       branchName: data.branchName,
     })
     .returning();
@@ -36,21 +38,12 @@ export const createBranch = async (
   return newBranch;
 };
 
-
 export const getAllBranches = async () => {
-  return await db
-    .select()
-    .from(branches);
+  return await db.select().from(branches);
 };
 
-
-export const getBranchById = async (
-  id: string,
-) => {
-  const [branch] = await db
-    .select()
-    .from(branches)
-    .where(eq(branches.id, id));
+export const getBranchById = async (id: string) => {
+  const [branch] = await db.select().from(branches).where(eq(branches.id, id));
 
   if (!branch) {
     throw new Error("Branch not found.");
@@ -58,12 +51,8 @@ export const getBranchById = async (
 
   return branch;
 };
-/* Update Branch
- */
-export const updateBranch = async (
-  id: string,
-  data: UpdateBranchInput,
-) => {
+
+export const updateBranch = async (id: string, data: UpdateBranchInput) => {
   const [existingBranch] = await db
     .select()
     .from(branches)
@@ -73,25 +62,25 @@ export const updateBranch = async (
     throw new Error("Branch not found.");
   }
 
-  if (
-    data.branchName &&
-    data.branchName !== existingBranch.branchName
-  ) {
-    const [duplicateBranch] =
-      await db
-        .select()
-        .from(branches)
-        .where(
-          eq(
-            branches.branchName,
-            data.branchName,
-          ),
-        );
+  if (data.code && data.code !== existingBranch.code) {
+    const [duplicateCode] = await db
+      .select()
+      .from(branches)
+      .where(eq(branches.code, data.code));
+
+    if (duplicateCode) {
+      throw new Error("Branch code already exists.");
+    }
+  }
+
+  if (data.branchName && data.branchName !== existingBranch.branchName) {
+    const [duplicateBranch] = await db
+      .select()
+      .from(branches)
+      .where(eq(branches.branchName, data.branchName));
 
     if (duplicateBranch) {
-      throw new Error(
-        "Branch name already exists.",
-      );
+      throw new Error("Branch name already exists.");
     }
   }
 
@@ -107,9 +96,7 @@ export const updateBranch = async (
   return updatedBranch;
 };
 
-export const deleteBranch = async (
-  id: string,
-) => {
+export const deleteBranch = async (id: string) => {
   const [existingBranch] = await db
     .select()
     .from(branches)
@@ -119,12 +106,9 @@ export const deleteBranch = async (
     throw new Error("Branch not found.");
   }
 
-  await db
-    .delete(branches)
-    .where(eq(branches.id, id));
+  await db.delete(branches).where(eq(branches.id, id));
 
   return {
-    message:
-      "Branch deleted successfully.",
+    message: "Branch deleted successfully.",
   };
 };

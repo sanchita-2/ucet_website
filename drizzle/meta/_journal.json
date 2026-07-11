@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1780241632625,
-      "tag": "0000_lush_slapstick",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1782892741641,
-      "tag": "0001_panoramic_wild_child",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1783590976864,
-      "tag": "0002_fine_sandman",
+      "when": 1783680521040,
+      "tag": "0000_bumpy_rocket_racer",
       "breakpoints": true
     }
   ]

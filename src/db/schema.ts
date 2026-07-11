@@ -21,11 +21,13 @@ export const roleEnum = pgEnum("user_role", [
   "student",
   "non_teaching_staff",
 ]);
+
 export const enrollmentStatusEnum = pgEnum("enrollment_status", [
   "active",
   "completed",
   "dropped",
 ]);
+
 export const placementStatusEnum = pgEnum("placement_status", [
   "pending",
   "interviewing",
@@ -34,18 +36,21 @@ export const placementStatusEnum = pgEnum("placement_status", [
   "rejected",
   "unplaced",
 ]);
+
 export const genderEnum = pgEnum("gender_type", [
   "male",
   "female",
   "other",
   "prefer_not_to_say",
 ]);
+
 export const teacherDesignationEnum = pgEnum("teacher_designation", [
   "assistant_professor",
   "associate_professor",
   "professor",
   "hod",
 ]);
+
 export const staffRoleEnum = pgEnum("staff_role", [
   "clerk",
   "librarian",
@@ -53,6 +58,7 @@ export const staffRoleEnum = pgEnum("staff_role", [
   "admin_staff",
   "maintenance",
 ]);
+
 export const dayOfWeekEnum = pgEnum("day_of_week", [
   "monday",
   "tuesday",
@@ -62,12 +68,14 @@ export const dayOfWeekEnum = pgEnum("day_of_week", [
   "saturday",
   "sunday",
 ]);
+
 export const placementTypeEnum = pgEnum("placement_type", [
   "on_campus",
   "off_campus",
   "internship",
   "ppo",
 ]);
+
 export const admissionTypeEnum = pgEnum("admission_type", [
   "regular",
   "lateral_entry",
@@ -107,26 +115,20 @@ export const users = pgTable(
   ],
 );
 
-export const notificationCategoryEnum = pgEnum(
-  "notification_category",
-  [
-    "general",
-    "academic",
-    "exam",
-    "placement",
-    "event",
-    "holiday",
-  ],
-);
+export const notificationCategoryEnum = pgEnum("notification_category", [
+  "general",
+  "academic",
+  "exam",
+  "placement",
+  "event",
+  "holiday",
+]);
 
-export const notificationPriorityEnum = pgEnum(
-  "notification_priority",
-  [
-    "normal",
-    "high",
-    "urgent",
-  ],
-);
+export const notificationPriorityEnum = pgEnum("notification_priority", [
+  "normal",
+  "high",
+  "urgent",
+]);
 
 export const refreshTokens = pgTable(
   "refresh_tokens",
@@ -179,8 +181,13 @@ export const emailVerificationTokens = pgTable(
 
 export const branches = pgTable("branches", {
   id: uuid("id").defaultRandom().primaryKey(),
+
+  code: varchar("branch_code", { length: 20 }).notNull().unique(),
+
   branchName: varchar("branch_name", { length: 255 }).notNull().unique(),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
+
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())
