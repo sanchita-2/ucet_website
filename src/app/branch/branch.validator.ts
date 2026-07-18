@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createBranchSchema = z.object({
-  code: z
+  branchCode: z
     .string()
     .trim()
     .toUpperCase()
@@ -18,7 +18,7 @@ export const createBranchSchema = z.object({
 export type CreateBranchInput = z.infer<typeof createBranchSchema>;
 
 export const updateBranchSchema = z.object({
-  code: z.string().trim().toUpperCase().min(2).max(20).optional(),
+  branchCode: z.string().trim().toUpperCase().min(2).max(20).optional(),
 
   branchName: z.string().trim().min(2).max(255).optional(),
 });

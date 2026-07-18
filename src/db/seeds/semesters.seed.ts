@@ -7,14 +7,14 @@ export async function seedSemesters() {
   await db
     .insert(semesters)
     .values([
-      { semNumber: 1 },
-      { semNumber: 2 },
-      { semNumber: 3 },
-      { semNumber: 4 },
-      { semNumber: 5 },
-      { semNumber: 6 },
-      { semNumber: 7 },
-      { semNumber: 8 },
+      { semesterNumber: 1, year: 1 },
+      { semesterNumber: 2, year: 1 },
+      { semesterNumber: 3, year: 2 },
+      { semesterNumber: 4, year: 2 },
+      { semesterNumber: 5, year: 3 },
+      { semesterNumber: 6, year: 3 },
+      { semesterNumber: 7, year: 4 },
+      { semesterNumber: 8, year: 4 },
     ])
     .onConflictDoNothing();
 

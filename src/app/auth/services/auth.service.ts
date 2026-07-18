@@ -3,6 +3,8 @@ import {
   users,
   students,
   branches,
+  semesters,
+  academicDetails,
   emailVerificationTokens,
   passwordResetTokens,
 } from "../../../db/schema.js";
@@ -22,6 +24,7 @@ export const registerStudent = async (
   userId: string;
   email: string;
 }> => {
+  // Check if email or phone already exists
   const [existingUser] = await db
     .select({ id: users.id })
     .from(users)
@@ -31,6 +34,7 @@ export const registerStudent = async (
     throw new Error("Email or phone already registered");
   }
 
+  // Check if registration number already exists
   const [existingStudent] = await db
     .select({ userId: students.userId })
     .from(students)
@@ -38,6 +42,16 @@ export const registerStudent = async (
 
   if (existingStudent) {
     throw new Error("Registration number already exists");
+  }
+
+  // Check if roll number already exists
+  const [existingAcademic] = await db
+    .select({ userId: academicDetails.userId })
+    .from(academicDetails)
+    .where(eq(academicDetails.rollNo, data.rollNo));
+
+  if (existingAcademic) {
+    throw new Error("Roll number already exists");
   }
 
   const passwordHash = await hashValue(data.password);
@@ -48,16 +62,43 @@ export const registerStudent = async (
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   const user = await db.transaction(async (tx) => {
+    // Find branch
     const [branch] = await tx
       .select({
         id: branches.id,
       })
       .from(branches)
-      .where(eq(branches.code, data.branchCode));
+      .where(eq(branches.branchCode, data.branchCode));
 
     if (!branch) {
-      throw new Error("Invalid branch");
+      throw new Error("Invalid branch code");
     }
+
+    // Validate admission type
+    if (data.admissionType === "regular" && data.entrySemesterNumber !== 1) {
+      throw new Error("Regular admission must start from Semester 1");
+    }
+
+    if (
+      data.admissionType === "lateral_entry" &&
+      data.entrySemesterNumber !== 3
+    ) {
+      throw new Error("Lateral entry must start from Semester 3");
+    }
+
+    // Find semester
+    const [semester] = await tx
+      .select({
+        id: semesters.id,
+      })
+      .from(semesters)
+      .where(eq(semesters.semesterNumber, data.entrySemesterNumber));
+
+    if (!semester) {
+      throw new Error("Invalid entry semester");
+    }
+
+    // Create user
     const [newUser] = await tx
       .insert(users)
       .values({
@@ -71,18 +112,33 @@ export const registerStudent = async (
       })
       .returning();
 
-    if (!newUser) throw new Error("Failed to create user");
+    if (!newUser) {
+      throw new Error("Failed to create user");
+    }
 
+    // Create student
     await tx.insert(students).values({
       userId: newUser.id,
       regNo: data.regNo,
       branchId: branch.id,
+      currentSemesterId: semester.id,
     });
 
+    // Create academic details
+    await tx.insert(academicDetails).values({
+      userId: newUser.id,
+      rollNo: data.rollNo,
+      dateOfAdmission: data.dateOfAdmission,
+      admissionType: data.admissionType,
+      entrySemesterId: semester.id,
+    });
+
+    // Remove old OTPs (if any)
     await tx
       .delete(emailVerificationTokens)
       .where(eq(emailVerificationTokens.userId, newUser.id));
 
+    // Save new OTP
     await tx.insert(emailVerificationTokens).values({
       userId: newUser.id,
       tokenHash: otpHash,
@@ -92,10 +148,8 @@ export const registerStudent = async (
     return newUser;
   });
 
+  // Send verification email
   await sendOtpEmail(user.email, otp);
-
-  // console.log("otp", otp);
-  // console.log(`OTP sent to ${user.email}`);
 
   return {
     userId: user.id,

@@ -8,19 +8,19 @@ export async function seedBranches() {
     .insert(branches)
     .values([
       {
-        code: "CSE",
+        branchCode: "CSE",
         branchName: "Computer Science & Engineering",
       },
       {
-        code: "IT",
+        branchCode: "IT",
         branchName: "Information Technology",
       },
       {
-        code: "ECE",
+        branchCode: "ECE",
         branchName: "Electronics & Communication Engineering",
       },
       {
-        code: "ME",
+        branchCode: "ME",
         branchName: "Mechanical Engineering",
       },
     ])

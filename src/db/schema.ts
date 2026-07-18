@@ -13,6 +13,7 @@ import {
   uniqueIndex,
   index,
   check,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("user_role", [
@@ -181,28 +182,53 @@ export const emailVerificationTokens = pgTable(
 
 export const branches = pgTable("branches", {
   id: uuid("id").defaultRandom().primaryKey(),
-
-  code: varchar("branch_code", { length: 20 }).notNull().unique(),
-
+  branchCode: varchar("branch_code", { length: 20 }).notNull().unique(),
   branchName: varchar("branch_name", { length: 255 }).notNull().unique(),
-
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
-
-export const semesters = pgTable("semesters", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  semNumber: integer("sem_number").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
 });
+
+export const semesters = pgTable(
+  "semesters",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    semesterNumber: integer("semester_number").notNull().unique(),
+
+    year: integer("year").notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    check(
+      "semester_number_check",
+      sql`${table.semesterNumber} >= 1 AND ${table.semesterNumber} <= 8`,
+    ),
+    check("year_check", sql`${table.year} >= 1 AND ${table.year} <= 4`),
+    check(
+      "semester_year_match",
+      sql`
+    (
+      (${table.semesterNumber} IN (1,2) AND ${table.year}=1)
+      OR
+      (${table.semesterNumber} IN (3,4) AND ${table.year}=2)
+      OR
+      (${table.semesterNumber} IN (5,6) AND ${table.year}=3)
+      OR
+      (${table.semesterNumber} IN (7,8) AND ${table.year}=4)
+    )
+  `,
+    ),
+  ],
+);
 
 export const teachers = pgTable("teachers", {
   userId: uuid("user_id")
@@ -222,12 +248,26 @@ export const teachers = pgTable("teachers", {
 export const students = pgTable("students", {
   userId: uuid("user_id")
     .primaryKey()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => users.id, {
+      onDelete: "cascade",
+    }),
+
   regNo: varchar("reg_no", { length: 50 }).notNull().unique(),
+
   branchId: uuid("branch_id")
     .notNull()
-    .references(() => branches.id, { onDelete: "restrict" }),
+    .references(() => branches.id, {
+      onDelete: "restrict",
+    }),
+
+  currentSemesterId: uuid("current_semester_id")
+    .notNull()
+    .references(() => semesters.id, {
+      onDelete: "restrict",
+    }),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
+
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())
@@ -250,18 +290,57 @@ export const nonTeachingStaff = pgTable("non_teaching_staff", {
     .notNull(),
 });
 
+export const academicYears = pgTable(
+  "academic_years",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    startYear: integer("start_year").notNull(),
+
+    endYear: integer("end_year").notNull(),
+
+    isCurrent: boolean("is_current").default(false).notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("academic_year_unique").on(table.startYear, table.endYear),
+
+    check(
+      "academic_year_check",
+      sql`${table.endYear} = ${table.startYear} + 1`,
+    ),
+  ],
+);
+
 export const academicDetails = pgTable("academic_details", {
   userId: uuid("user_id")
     .primaryKey()
-    .references(() => students.userId, { onDelete: "cascade" }),
+    .references(() => students.userId, {
+      onDelete: "cascade",
+    }),
+
   rollNo: varchar("roll_no", { length: 50 }).notNull().unique(),
-  passingYear: integer("passing_year").notNull(),
-  dateOfAdmission: date("date_of_admission").notNull(),
+
+  dateOfAdmission: date("date_of_admission", {
+    mode: "date",
+  }).notNull(),
+
   admissionType: admissionTypeEnum("admission_type").notNull(),
-  entrySemester: uuid("entry_semester")
+
+  entrySemesterId: uuid("entry_semester_id")
     .notNull()
-    .references(() => semesters.id, { onDelete: "restrict" }),
+    .references(() => semesters.id, {
+      onDelete: "restrict",
+    }),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
+
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())
@@ -277,7 +356,7 @@ export const subjects = pgTable(
     branchId: uuid("branch_id")
       .notNull()
       .references(() => branches.id, { onDelete: "restrict" }),
-    semId: uuid("sem_id")
+    semesterId: uuid("semester_id")
       .notNull()
       .references(() => semesters.id, { onDelete: "restrict" }),
     credits: integer("credits").notNull(),
@@ -328,7 +407,7 @@ export const timetables = pgTable(
     branchId: uuid("branch_id")
       .notNull()
       .references(() => branches.id, { onDelete: "restrict" }),
-    semId: uuid("sem_id")
+    semesterId: uuid("semester_id")
       .notNull()
       .references(() => semesters.id, { onDelete: "restrict" }),
     section: varchar("section", { length: 10 }).notNull(),
@@ -336,7 +415,11 @@ export const timetables = pgTable(
     startTime: time("start_time", { precision: 0 }).notNull(),
     endTime: time("end_time", { precision: 0 }).notNull(),
     roomNo: varchar("room_no", { length: 50 }).notNull(),
-    academicYear: varchar("academic_year", { length: 20 }).notNull(),
+    academicYearId: uuid("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, {
+        onDelete: "restrict",
+      }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -345,23 +428,23 @@ export const timetables = pgTable(
   },
   (table) => [
     uniqueIndex("idx_timetable_section_slot").on(
-      table.academicYear,
+      table.academicYearId,
       table.branchId,
-      table.semId,
+      table.semesterId,
       table.section,
       table.day,
       table.startTime,
       table.endTime,
     ),
     uniqueIndex("idx_timetable_teacher_slot").on(
-      table.academicYear,
+      table.academicYearId,
       table.teacherId,
       table.day,
       table.startTime,
       table.endTime,
     ),
     uniqueIndex("idx_timetable_room_slot").on(
-      table.academicYear,
+      table.academicYearId,
       table.roomNo,
       table.day,
       table.startTime,
@@ -380,10 +463,14 @@ export const enrollments = pgTable(
     subjectId: uuid("subject_id")
       .notNull()
       .references(() => subjects.id, { onDelete: "restrict" }),
-    semId: uuid("sem_id")
+    semesterId: uuid("semester_id")
       .notNull()
       .references(() => semesters.id, { onDelete: "restrict" }),
-    academicYear: varchar("academic_year", { length: 20 }).notNull(),
+    academicYearId: uuid("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, {
+        onDelete: "restrict",
+      }),
     status: enrollmentStatusEnum("status").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -395,8 +482,8 @@ export const enrollments = pgTable(
     uniqueIndex("idx_student_enrollment_unique").on(
       table.studentId,
       table.subjectId,
-      table.semId,
-      table.academicYear,
+      table.semesterId,
+      table.academicYearId,
     ),
   ],
 );
@@ -439,7 +526,11 @@ export const placementCells = pgTable(
     branchId: uuid("branch_id")
       .notNull()
       .references(() => branches.id, { onDelete: "restrict" }),
-    academicYear: varchar("academic_year", { length: 20 }).notNull(),
+    academicYearId: uuid("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, {
+        onDelete: "restrict",
+      }),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -451,7 +542,7 @@ export const placementCells = pgTable(
     uniqueIndex("idx_placement_cell_unique").on(
       table.coordinatorId,
       table.branchId,
-      table.academicYear,
+      table.academicYearId,
     ),
   ],
 );
@@ -469,7 +560,11 @@ export const placements = pgTable(
     companyName: varchar("company_name", { length: 255 }).notNull(),
     jobRole: varchar("job_role", { length: 255 }).notNull(),
     package: decimal("package", { precision: 10, scale: 2 }).notNull(),
-    placementYear: integer("placement_year").notNull(),
+    academicYearId: uuid("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, {
+        onDelete: "restrict",
+      }),
     status: placementStatusEnum("status").notNull(),
     placementType: placementTypeEnum("placement_type").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -480,17 +575,14 @@ export const placements = pgTable(
   },
   (table) => [check("package_check", sql`${table.package} >= 0`)],
 );
+
 export const notifications = pgTable("notifications", {
   id: uuid("id").defaultRandom().primaryKey(),
-
   title: varchar("title", { length: 255 }).notNull(),
-
   content: varchar("content", { length: 5000 }).notNull(),
-
-  category: varchar("category", { length: 50 }).notNull(),
-
+  category: notificationCategoryEnum("category").notNull(),
+  priority: notificationPriorityEnum("priority").default("normal").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())

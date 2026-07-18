@@ -14,13 +14,13 @@ export const createBranch = async (data: CreateBranchInput) => {
     .from(branches)
     .where(
       or(
-        eq(branches.code, data.code),
+        eq(branches.branchCode, data.branchCode),
         eq(branches.branchName, data.branchName),
       ),
     );
 
   if (existingBranch) {
-    if (existingBranch.code === data.code) {
+    if (existingBranch.branchCode === data.branchCode) {
       throw new Error("Branch code already exists.");
     }
 
@@ -30,7 +30,7 @@ export const createBranch = async (data: CreateBranchInput) => {
   const [newBranch] = await db
     .insert(branches)
     .values({
-      code: data.code,
+      branchCode: data.branchCode,
       branchName: data.branchName,
     })
     .returning();
@@ -62,11 +62,11 @@ export const updateBranch = async (id: string, data: UpdateBranchInput) => {
     throw new Error("Branch not found.");
   }
 
-  if (data.code && data.code !== existingBranch.code) {
+  if (data.branchCode && data.branchCode !== existingBranch.branchCode) {
     const [duplicateCode] = await db
       .select()
       .from(branches)
-      .where(eq(branches.code, data.code));
+      .where(eq(branches.branchCode, data.branchCode));
 
     if (duplicateCode) {
       throw new Error("Branch code already exists.");
