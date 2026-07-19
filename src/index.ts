@@ -1,15 +1,15 @@
 import "dotenv/config";
-
-console.log("JWT_SECRET =", process.env.JWT_SECRET);
-console.log("JWT_REFRESH_SECRET =", process.env.JWT_REFRESH_SECRET);
 import http from "node:http";
 import { createExpressApplication } from "./app/index.js";
 import { env } from "./config/env.js";
 import { verifyDatabaseConnection, closeDbConnection } from "./db/index.js";
+import { cleanupRefreshTokens } from "./db/cleanup.js";
 
 async function main() {
   try {
     await verifyDatabaseConnection();
+
+    await cleanupRefreshTokens();
 
     const app = createExpressApplication();
     const server = http.createServer(app);

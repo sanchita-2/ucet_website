@@ -51,7 +51,7 @@ export const resendOtp = async (email: string) => {
   });
 
   await sendOtpEmail(user.email, otp);
-  console.log("otp",otp);
+  // console.log("otp",otp);
 
   return {
     message: "OTP sent successfully",
@@ -59,7 +59,7 @@ export const resendOtp = async (email: string) => {
 };
 
 export const verifyEmailOtp = async (email: string, otp: string) => {
-  console.log("Searching user with email:", email);
+  // console.log("Searching user with email:", email);
   const [user] = await db
     .select()
     .from(users)
@@ -67,7 +67,7 @@ export const verifyEmailOtp = async (email: string, otp: string) => {
 
   if (!user) throw new Error("User not found");
 
-  console.log("User found:", user);
+  // console.log("User found:", user);
   const [record] = await db
     .select()
     .from(emailVerificationTokens)

@@ -42,23 +42,17 @@ pnpm install
 
 ## Environment Variables
 
-Create a `.env` file in the project root using `.env.example`.
+1. Copy `.env.example`
+2. Rename it to `.env`
+3. Replace the placeholder values with your own credentials.
 
-Example:
-
-```env
-PORT=8080
-
-DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database_name>
-
-JWT_SECRET=<use strong and secure jwt secret>
-```
+> **Never commit your actual `.env` file or any real secrets to Git. Only commit `.env.example`.**
 
 ---
 
 ## Database Setup
 
-Start PostgreSQL using Docker:
+### 1. Start PostgreSQL using Docker
 
 ```bash
 docker compose up -d
@@ -70,13 +64,29 @@ Verify that the container is running:
 docker ps
 ```
 
-Apply database migrations:
+### Stop PostgreSQL
+
+```bash
+docker compose down
+```
+
+Stops and removes the running Docker containers.
+
+### 2. Apply Database Migrations
 
 ```bash
 pnpm db:migrate
 ```
 
-Open Drizzle Studio:
+### 3. Seed Initial Data
+
+This will insert the default branches and semesters required by the application.
+
+```bash
+pnpm db:seed
+```
+
+### 4. Open Drizzle Studio (Optional)
 
 ```bash
 pnpm studio
@@ -84,42 +94,53 @@ pnpm studio
 
 ---
 
-## Important Note About Migrations
+## Database Migration Workflow
 
-Migration files are already tracked in the repository.
+> **Migration files are version-controlled and must always be committed to the repository.**
 
-For normal project setup, run:
+### First-Time Project Setup
+
+After cloning or pulling the project:
 
 ```bash
 pnpm db:migrate
+pnpm db:seed
 ```
 
-Do **not** run:
+> **Note:** `db:seed` uses `ON CONFLICT DO NOTHING`, so it is safe to run multiple times.
 
-```bash
-pnpm db:generate
-```
+---
 
-unless you have modified the database schema.
+### When You Modify the Database Schema
 
-`db:generate` should only be used when making changes to `src/db/schema.ts`.
-
-Workflow for schema changes:
+If you make changes to `src/db/schema.ts`, generate a new migration and apply it:
 
 ```bash
 pnpm db:generate
 pnpm db:migrate
+```
+
+Then commit the generated migration files:
+
+```bash
 git add .
-git commit
+git commit -m "feat(db): describe your schema change"
 git push
 ```
 
-Workflow for teammates after pulling changes:
+---
+
+### For Other Team Members
+
+After pulling the latest changes:
 
 ```bash
 git pull
 pnpm db:migrate
+pnpm db:seed
 ```
+
+> **Do not run `pnpm db:generate` unless you have modified `src/db/schema.ts`.**
 
 ---
 
@@ -157,7 +178,7 @@ Response:
 ### Health Check Route
 
 ```http
-GET /health
+GET /api/health
 ```
 
 Response:
@@ -176,7 +197,7 @@ Response:
 pnpm build
 ```
 
-Compiles TypeScript source code into the `dist` directory.
+Builds the application into the `dist` directory.
 
 ---
 
@@ -193,8 +214,13 @@ Runs the compiled production build.
 ## Project Structure
 
 ```text
-src/
-├── app/
+.
+├── drizzle/
+│   ├── 0000_xxxxx.sql
+│   └── meta/
+│
+├── src/
+│   ├── app/
 │   ├── auth/
 │   ├── students/
 │   ├── teachers/
@@ -213,8 +239,9 @@ src/
 ├── db/
 │   ├── schema.ts
 │   ├── relations.ts
+│   ├── cleanup.ts
 │   ├── index.ts
-│   └── migrations/
+│   └── seeds/
 │
 ├── shared/
 │   ├── constants/
@@ -328,6 +355,12 @@ pnpm db:migrate
 ```
 
 Applies pending database migrations.
+
+```bash
+pnpm db:seed
+```
+
+Seeds the database with default application data (e.g. branches and semesters).
 
 ```bash
 pnpm studio

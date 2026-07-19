@@ -23,7 +23,7 @@ export const authenticate = (
   res: Response,
   next: NextFunction,
 ): void => {
-  console.log("Headers:", req.headers);
+  // console.log("Headers:", req.headers);
   try {
     const authHeader =
       req.headers.authorization;
@@ -54,7 +54,7 @@ export const authenticate = (
 
     const token = authHeader.split(" ")[1];
 
-     console.log("Received Token:", token);
+    //  console.log("Received Token:", token);
 
     if (!token) {
       res.status(401).json({
@@ -71,7 +71,7 @@ export const authenticate = (
 
     req.user = decoded;
 
-     console.log("Decoded User:", decoded);
+    //  console.log("Decoded User:", decoded);
 
 next();
   } catch {
