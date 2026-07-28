@@ -9,6 +9,9 @@ import cookieParser from "cookie-parser";
 import notificationRouter from "./routes/notification.route.js";
 import branchRouter from "./branch/branch.routes.js";
 import semesterRouter from "./routes/semester.route.js";
+import teacherRouter from "./teachers/teacher.route.js";
+import studentRouter from "./students/student.route.js";
+import teacherSubjectRouter from "./teacher-subject/teacherSubject.routes.js";
 
 export function createExpressApplication(): Express {
   const app = express();
@@ -32,11 +35,15 @@ export function createExpressApplication(): Express {
 
   app.use("/api/notifications", notificationRouter);
  
- app.use("/api/branches", branchRouter);
+  app.use("/api/branches", branchRouter);
   app.use("/api/auth", authRoutes);
   app.use("/semesters", semesterRouter);
-
-
+  app.use("/teachers", teacherRouter);
+  app.use("/students", studentRouter);
+  app.use(
+  "/teacher-subjects",
+  teacherSubjectRouter,
+);
 
 
   // Error Handler
