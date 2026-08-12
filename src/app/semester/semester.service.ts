@@ -11,29 +11,21 @@ import type {
 /**
  * Create Semester
  */
-export const createSemester = async (
-  data: CreateSemesterInput,
-) => {
+export const createSemester = async (data: CreateSemesterInput) => {
   const [existingSemester] = await db
     .select()
     .from(semesters)
-    .where(
-      eq(
-        semesters.semNumber,
-        data.semNumber,
-      ),
-    );
+    .where(eq(semesters.semesterNumber, data.semesterNumber));
 
   if (existingSemester) {
-    throw new Error(
-      "Semester already exists."
-    );
+    throw new Error("Semester already exists.");
   }
 
   const [newSemester] = await db
     .insert(semesters)
     .values({
-      semNumber: data.semNumber,
+      semesterNumber: data.semesterNumber,
+      year: data.year,
     })
     .returning();
 
@@ -43,118 +35,81 @@ export const createSemester = async (
 /**
  * Get All Semesters
  */
-export const getAllSemesters =
-  async () => {
-    return await db
-      .select()
-      .from(semesters);
-  };
+export const getAllSemesters = async () => {
+  return await db.select().from(semesters);
+};
 
 /**
  * Get Semester By ID
  */
-export const getSemesterById =
-  async (id: string) => {
-    const [semester] = await db
-      .select()
-      .from(semesters)
-      .where(eq(semesters.id, id));
+export const getSemesterById = async (id: string) => {
+  const [semester] = await db
+    .select()
+    .from(semesters)
+    .where(eq(semesters.id, id));
 
-    if (!semester) {
-      throw new Error(
-        "Semester not found."
-      );
-    }
+  if (!semester) {
+    throw new Error("Semester not found.");
+  }
 
-    return semester;
-  };
-  /**
+  return semester;
+};
+
+/**
  * Update Semester
  */
-export const updateSemester =
-  async (
-    id: string,
-    data: UpdateSemesterInput,
-  ) => {
-    const [existingSemester] =
-      await db
-        .select()
-        .from(semesters)
-        .where(
-          eq(semesters.id, id),
-        );
+export const updateSemester = async (id: string, data: UpdateSemesterInput) => {
+  const [existingSemester] = await db
+    .select()
+    .from(semesters)
+    .where(eq(semesters.id, id));
 
-    if (!existingSemester) {
-      throw new Error(
-        "Semester not found."
-      );
+  if (!existingSemester) {
+    throw new Error("Semester not found.");
+  }
+
+  if (
+    data.semesterNumber !== undefined &&
+    data.semesterNumber !== existingSemester.semesterNumber
+  ) {
+    const [duplicateSemester] = await db
+      .select()
+      .from(semesters)
+      .where(eq(semesters.semesterNumber, data.semesterNumber));
+
+    if (duplicateSemester) {
+      throw new Error("Semester already exists.");
     }
+  }
 
-    if (
-      data.semNumber &&
-      data.semNumber !==
-        existingSemester.semNumber
-    ) {
-      const [duplicateSemester] =
-        await db
-          .select()
-          .from(semesters)
-          .where(
-            eq(
-              semesters.semNumber,
-              data.semNumber,
-            ),
-          );
+  const [updatedSemester] = await db
+    .update(semesters)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(semesters.id, id))
+    .returning();
 
-      if (duplicateSemester) {
-        throw new Error(
-          "Semester already exists."
-        );
-      }
-    }
-
-    const [updatedSemester] =
-      await db
-        .update(semesters)
-        .set({
-          ...data,
-          updatedAt: new Date(),
-        })
-        .where(
-          eq(semesters.id, id),
-        )
-        .returning();
-
-    return updatedSemester;
-  };
+  return updatedSemester;
+};
 
 /**
  * Delete Semester
  */
-export const deleteSemester =
-  async (id: string) => {
-    const [existingSemester] =
-      await db
-        .select()
-        .from(semesters)
-        .where(
-          eq(semesters.id, id),
-        );
+export const deleteSemester = async (id: string) => {
+  const [existingSemester] = await db
+    .select()
+    .from(semesters)
+    .where(eq(semesters.id, id));
 
-    if (!existingSemester) {
-      throw new Error(
-        "Semester not found."
-      );
-    }
+  if (!existingSemester) {
+    throw new Error("Semester not found.");
+  }
 
-    await db
-      .delete(semesters)
-      .where(
-        eq(semesters.id, id),
-      );
+  await db.delete(semesters).where(eq(semesters.id, id));
 
-    return {
-      message:
-        "Semester deleted successfully.",
-    };
+  return {
+    message: "Semester deleted successfully.",
   };
+};

@@ -16,20 +16,12 @@ const semesterRouter: Router = Router();
 /**
  * Get All Semesters
  */
-semesterRouter.get(
-  "/",
-  authenticate,
-  getAllSemestersController,
-);
+semesterRouter.get("/", authenticate, getAllSemestersController);
 
 /**
  * Get Semester By ID
  */
-semesterRouter.get(
-  "/:id",
-  authenticate,
-  getSemesterByIdController,
-);
+semesterRouter.get("/:id", authenticate, getSemesterByIdController);
 
 /**
  * Create Semester

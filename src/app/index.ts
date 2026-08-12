@@ -34,17 +34,13 @@ export function createExpressApplication(): Express {
   });
 
   app.use("/api/notifications", notificationRouter);
- 
+
   app.use("/api/branches", branchRouter);
   app.use("/api/auth", authRoutes);
   app.use("/semesters", semesterRouter);
   app.use("/teachers", teacherRouter);
   app.use("/students", studentRouter);
-  app.use(
-  "/teacher-subjects",
-  teacherSubjectRouter,
-);
-
+  app.use("/teacher-subjects", teacherSubjectRouter);
 
   // Error Handler
   app.use(errorHandler);
