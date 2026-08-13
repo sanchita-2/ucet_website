@@ -2,28 +2,18 @@ import { eq } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 
-import {
-  users,
-  students,
-  branches,
-  semesters,
-} from "../../db/schema.js";
+import { users, students, branches, semesters } from "../../db/schema.js";
 
 import type {
   CreateStudentInput,
+  UpdateStudentInput,
 } from "./student.validator.js";
 
-export const createStudent = async (
-  data: CreateStudentInput,
-) => {
-
+export const createStudent = async (data: CreateStudentInput) => {
   /**
    * Check whether the user exists
    */
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, data.userId));
+  const [user] = await db.select().from(users).where(eq(users.id, data.userId));
 
   if (!user) {
     throw new Error("User not found.");
@@ -33,9 +23,7 @@ export const createStudent = async (
    * Verify that the user has Student role
    */
   if (user.role !== "student") {
-    throw new Error(
-      "Selected user is not registered as a student.",
-    );
+    throw new Error("Selected user is not registered as a student.");
   }
 
   /**
@@ -47,9 +35,7 @@ export const createStudent = async (
     .where(eq(students.userId, data.userId));
 
   if (existingStudent) {
-    throw new Error(
-      "Student profile already exists.",
-    );
+    throw new Error("Student profile already exists.");
   }
 
   /**
@@ -61,9 +47,7 @@ export const createStudent = async (
     .where(eq(students.regNo, data.regNo));
 
   if (existingRegNo) {
-    throw new Error(
-      "Registration number already exists.",
-    );
+    throw new Error("Registration number already exists.");
   }
 
   /**
@@ -75,9 +59,7 @@ export const createStudent = async (
     .where(eq(branches.id, data.branchId));
 
   if (!branch) {
-    throw new Error(
-      "Branch not found.",
-    );
+    throw new Error("Branch not found.");
   }
 
   /**
@@ -86,17 +68,10 @@ export const createStudent = async (
   const [semester] = await db
     .select()
     .from(semesters)
-    .where(
-      eq(
-        semesters.id,
-        data.currentSemesterId,
-      ),
-    );
+    .where(eq(semesters.id, data.currentSemesterId));
 
   if (!semester) {
-    throw new Error(
-      "Semester not found.",
-    );
+    throw new Error("Semester not found.");
   }
 
   /**
@@ -108,8 +83,7 @@ export const createStudent = async (
       userId: data.userId,
       regNo: data.regNo,
       branchId: data.branchId,
-      currentSemesterId:
-        data.currentSemesterId,
+      currentSemesterId: data.currentSemesterId,
     })
     .returning();
 
@@ -119,62 +93,38 @@ export const createStudent = async (
 /**
  * Get All Students
  */
-export const getAllStudents =
-  async () => {
-    return await db
-      .select({
-        userId: students.userId,
+export const getAllStudents = async () => {
+  return await db
+    .select({
+      userId: students.userId,
 
-        regNo: students.regNo,
+      regNo: students.regNo,
 
-        firstName: users.firstName,
-        lastName: users.lastName,
+      firstName: users.firstName,
+      lastName: users.lastName,
 
-        email: users.email,
+      email: users.email,
 
-        phone: users.phone,
+      phone: users.phone,
 
-        gender: users.gender,
+      gender: users.gender,
 
-        branchName:
-          branches.branchName,
+      branchName: branches.branchName,
 
-        semester:
-          semesters.semesterNumber,
+      semester: semesters.semesterNumber,
 
-        year: semesters.year,
+      year: semesters.year,
 
-        createdAt:
-          students.createdAt,
-      })
-      .from(students)
-      .innerJoin(
-        users,
-        eq(
-          students.userId,
-          users.id,
-        ),
-      )
-      .innerJoin(
-        branches,
-        eq(
-          students.branchId,
-          branches.id,
-        ),
-      )
-      .innerJoin(
-        semesters,
-        eq(
-          students.currentSemesterId,
-          semesters.id,
-        ),
-      );
-  };
-  /* Get Student By User ID
+      createdAt: students.createdAt,
+    })
+    .from(students)
+    .innerJoin(users, eq(students.userId, users.id))
+    .innerJoin(branches, eq(students.branchId, branches.id))
+    .innerJoin(semesters, eq(students.currentSemesterId, semesters.id));
+};
+/* Get Student By User ID
  */
-export const getStudentById = async (
-  userId: string,
-) => {
+export const getStudentById = async (userId: string) => {
   const [student] = await db
     .select({
       userId: students.userId,
@@ -194,41 +144,20 @@ export const getStudentById = async (
       branchName: branches.branchName,
 
       semesterId: semesters.id,
-      semesterNumber:
-        semesters.semesterNumber,
+      semesterNumber: semesters.semesterNumber,
 
       year: semesters.year,
 
-      createdAt:
-        students.createdAt,
+      createdAt: students.createdAt,
     })
     .from(students)
-    .innerJoin(
-      users,
-      eq(students.userId, users.id),
-    )
-    .innerJoin(
-      branches,
-      eq(
-        students.branchId,
-        branches.id,
-      ),
-    )
-    .innerJoin(
-      semesters,
-      eq(
-        students.currentSemesterId,
-        semesters.id,
-      ),
-    )
-    .where(
-      eq(students.userId, userId),
-    );
+    .innerJoin(users, eq(students.userId, users.id))
+    .innerJoin(branches, eq(students.branchId, branches.id))
+    .innerJoin(semesters, eq(students.currentSemesterId, semesters.id))
+    .where(eq(students.userId, userId));
 
   if (!student) {
-    throw new Error(
-      "Student not found.",
-    );
+    throw new Error("Student not found.");
   }
 
   return student;
@@ -239,40 +168,23 @@ export const updateStudent = async (
   userId: string,
   data: UpdateStudentInput,
 ) => {
-  const [existingStudent] =
-    await db
-      .select()
-      .from(students)
-      .where(
-        eq(students.userId, userId),
-      );
+  const [existingStudent] = await db
+    .select()
+    .from(students)
+    .where(eq(students.userId, userId));
 
   if (!existingStudent) {
-    throw new Error(
-      "Student not found.",
-    );
+    throw new Error("Student not found.");
   }
 
-  if (
-    data.regNo &&
-    data.regNo !==
-      existingStudent.regNo
-  ) {
-    const [duplicateRegNo] =
-      await db
-        .select()
-        .from(students)
-        .where(
-          eq(
-            students.regNo,
-            data.regNo,
-          ),
-        );
+  if (data.regNo && data.regNo !== existingStudent.regNo) {
+    const [duplicateRegNo] = await db
+      .select()
+      .from(students)
+      .where(eq(students.regNo, data.regNo));
 
     if (duplicateRegNo) {
-      throw new Error(
-        "Registration number already exists.",
-      );
+      throw new Error("Registration number already exists.");
     }
   }
 
@@ -280,90 +192,54 @@ export const updateStudent = async (
     const [branch] = await db
       .select()
       .from(branches)
-      .where(
-        eq(
-          branches.id,
-          data.branchId,
-        ),
-      );
+      .where(eq(branches.id, data.branchId));
 
     if (!branch) {
-      throw new Error(
-        "Branch not found.",
-      );
+      throw new Error("Branch not found.");
     }
   }
 
   if (data.currentSemesterId) {
-    const [semester] =
-      await db
-        .select()
-        .from(semesters)
-        .where(
-          eq(
-            semesters.id,
-            data.currentSemesterId,
-          ),
-        );
+    const [semester] = await db
+      .select()
+      .from(semesters)
+      .where(eq(semesters.id, data.currentSemesterId));
 
     if (!semester) {
-      throw new Error(
-        "Semester not found.",
-      );
+      throw new Error("Semester not found.");
     }
   }
 
-  const [updatedStudent] =
-    await db
-      .update(students)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(
-        eq(
-          students.userId,
-          userId,
-        ),
-      )
-      .returning();
+  const [updatedStudent] = await db
+    .update(students)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(students.userId, userId))
+    .returning();
 
   return updatedStudent;
 };
 /* Delete Student
  */
-export const deleteStudent = async (
-  userId: string,
-) => {
-  const [existingStudent] =
-    await db
-      .select()
-      .from(students)
-      .where(
-        eq(students.userId, userId),
-      );
+export const deleteStudent = async (userId: string) => {
+  const [existingStudent] = await db
+    .select()
+    .from(students)
+    .where(eq(students.userId, userId));
 
   if (!existingStudent) {
-    throw new Error(
-      "Student not found.",
-    );
+    throw new Error("Student not found.");
   }
 
-  await db
-    .delete(students)
-    .where(
-      eq(students.userId, userId),
-    );
+  await db.delete(students).where(eq(students.userId, userId));
 
   return {
-    message:
-      "Student deleted successfully.",
+    message: "Student deleted successfully.",
   };
 };
-//get student profile 
-export const getMyProfile =
-  async (userId: string) => {
-    return await getStudentById(
-      userId,
-    );
-  };
+//get student profile
+export const getMyProfile = async (userId: string) => {
+  return await getStudentById(userId);
+};
