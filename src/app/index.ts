@@ -12,7 +12,8 @@ import semesterRouter from "./routes/semester.route.js";
 import teacherRouter from "./teachers/teacher.route.js";
 import studentRouter from "./students/student.route.js";
 import teacherSubjectRouter from "./teacher-subject/teacherSubject.routes.js";
-
+import timetableRouter from "./timetable/timetable.routes.js";
+import enrollmentRouter from "./enrollment/enrollment.route.js";
 export function createExpressApplication(): Express {
   const app = express();
   app.use(express.json());
@@ -41,7 +42,14 @@ export function createExpressApplication(): Express {
   app.use("/teachers", teacherRouter);
   app.use("/students", studentRouter);
   app.use("/teacher-subjects", teacherSubjectRouter);
-
+  app.use(
+  "/timetable",
+  timetableRouter,
+);
+app.use(
+  "/enrollments",
+  enrollmentRouter,
+);
   // Error Handler
   app.use(errorHandler);
 
