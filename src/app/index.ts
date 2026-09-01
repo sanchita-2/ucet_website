@@ -14,6 +14,7 @@ import studentRouter from "./students/student.route.js";
 import teacherSubjectRouter from "./teacher-subject/teacherSubject.routes.js";
 import timetableRouter from "./timetable/timetable.routes.js";
 import enrollmentRouter from "./enrollment/enrollment.route.js";
+import placementCellRouter from "./placement-cell/placement-cell.routes.js";
 export function createExpressApplication(): Express {
   const app = express();
   app.use(express.json());
@@ -46,6 +47,7 @@ export function createExpressApplication(): Express {
   "/timetable",
   timetableRouter,
 );
+app.use("/api/placement-cells", placementCellRouter);
 app.use(
   "/enrollments",
   enrollmentRouter,
